@@ -15,10 +15,16 @@ module Partitioned
       raise MethodNotImplemented.new(self, :partition_foreign_key)
     end
 
+    # the field to partition on
+    # @return [String] the name of the foreign key field
+    def self.partition_foreign_table
+      ActiveSupport::Inflector::pluralize(partition_foreign_key.to_s.sub(/_id$/,''))
+    end
+
     partitioned do |partition|
       partition.foreign_key lambda {|model, foreign_key_value|
         return Configurator::Data::ForeignKey.new(model.partition_foreign_key,
-                                                  ActiveSupport::Inflector::pluralize(model.partition_foreign_key.to_s.sub(/_id$/,'')),
+                                                  model.partition_foreign_table,
                                                   :id)
       }
     end
